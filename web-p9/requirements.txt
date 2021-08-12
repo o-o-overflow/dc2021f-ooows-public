@@ -1,0 +1,7 @@
+eventlet
+flask
+flask-socketio
+ipdb
+ipython
+pysqlite3
+websockets

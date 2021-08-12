@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+{% block tabs %}
+  <li class="-mb-px mr-1">
+    <a class="bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 text-blue-700 font-semibold" href="#">Dashboard</a>
+  </li>
+  <li class="mr-1">
+    <a class="bg-white inline-block py-2 px-4 text-gray-400" href="#">Console</a>
+  </li>
+  <li class="mr-1">
+    <a class="bg-white inline-block py-2 px-4 text-gray-400" href="#">Video</a>
+  </li>
+  <li class="mr-1">
+    <a class="bg-white inline-block py-2 px-4 text-gray-400" href="#">Files</a>
+  </li>
+{% endblock %}
+
+{% block body %}
+    <form id="refresh" method="GET" action="/" class="hidden"></form>
+
+    <section class="h-full overflow-auto p-8 w-full h-full flex flex-col">
+      <header class="border-dashed border-2 border-gray-400 py-12 flex flex-col justify-center items-center">
+        <p class="mb-3 font-semibold text-gray-900 flex flex-wrap justify-center">
+          <span>Create a VM</span>
+        </p>
+        <input id="hidden-input" type="file" class="hidden" />
+        <button id="button" class="mt-2 rounded-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 focus:shadow-outline focus:outline-none">
+          Upload a virtual disk
+        </button>
+        <ul id="gallery" class="flex flex-1 flex-wrap -m-1">
+
+        </ul>
+        <button id="submit" class="hidden rounded-sm px-3 py-1 bg-blue-700 hover:bg-blue-500 text-white focus:shadow-outline focus:outline-none">
+          Upload now
+        </button>
+        <form id="file-upload" class="hidden" method="POST" action="/new" enctype="multipart/form-data">
+          <input name="disk" type="file">
+          <input name="vmname" type="text">
+        </form>
+      </header>
+    </section>
+
+    <div class="p-3 grid gap-5 grid-cols-3">
+      {% for vm in vms %}
+      <div class="p-5 max-w-sm mx-auto bg-white rounded-xl shadow-md flex items-center space-x-4">
+        <div class="text-xl font-medium text-black">{{ vm['name'] }}</div>
+        <div class="flex-shrink-0">
+        {% if vm['running'] %}
+        <a href={{ url_for('stop', vmid=vm['id']) }}>
+          <img class="h-5 w-5" alt="Stop VM" src="/static/zondicons/close.svg"></img>
+        </a>
+        {% else %}
+        <a href={{ url_for('start', vmid=vm['id']) }}>
+          <img class="h-5 w-5" alt="Start VM" src="/static/zondicons/play.svg"></img>
+        </a>
+        {% endif %}
+        </div>
+        {% if vm['running'] %}
+        <a href={{ url_for('console', vmid=vm['id']) }}>
+          <img class="h-5 w-5 flex-shrink-0" alt="Launch Console" src="/static/zondicons/cheveron-right.svg"></img>
+        </a>
+        <a href={{ url_for('view', vmid=vm['id']) }}>
+          <img class="h-5 w-5 flex-shrink-0" alt="View Screen" src="/static/zondicons/video-camera.svg"></img>
+        </a>
+        <a href={{ url_for('files', vmid=vm['id']) }}>
+          <img class="h-5 w-5 flex-shrink-0" alt="Browse Files" src="/static/zondicons/document.svg"></img>
+        </a>
+        {% else %}
+        <img class="h-5 w-5 opacity-50" alt="Launch Console" src="/static/zondicons/cheveron-right.svg"></img>
+        <img class="h-5 w-5 opacity-50" alt="Launch Console" src="/static/zondicons/video-camera.svg"></img>
+        <img class="h-5 w-5 opacity-50" alt="Browse Files" src="/static/zondicons/document.svg"></img>
+        {% endif %}
+        <div class="flex-shrink-0">
+          <a href={{ url_for('delete', vmid=vm['id']) }}>
+            <img class="h-5 w-5" alt="Delete VM" src="/static/zondicons/trash.svg"></img>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <template id="file-template">
+      <li class="block p-1">
+          <img class="h-30 w-30" src="/static/zondicons/hard-drive.svg"></img>
+        <div class="flex">
+          <h1 class="flex-1 italic font-medium"></h1>
+          <button class="delete ml-auto focus:outline-none hover:bg-red-100 p-1 rounded-md">
+          <svg class="delete fill-current text-red-600 w-4 h-4 ml-auto" width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M10 8.586L2.929 1.515 1.515 2.929 8.586 10l-7.071 7.071 1.414 1.414L10 11.414l7.071 7.071 1.414-1.414L11.414 10l7.071-7.071-1.414-1.414L10 8.586z"/>
+          </svg>
+          </button>
+        </div>
+      </li>
+    </template>
+
+    <script>
+      const fileTempl = document.getElementById("file-template");
+
+      let FILE_LIST = null;
+
+      function addFile(file) {
+          const gallery = document.getElementById("gallery");
+
+          const clone = fileTempl.content.cloneNode(true);
+          clone.querySelector("h1").textContent = file.name;
+
+          const button = document.getElementById("button");
+          button.classList.add("hidden");
+
+          gallery.prepend(clone);
+
+          const submitBtn = document.getElementById("submit");
+          submitBtn.classList.remove("hidden");
+      }
+
+      const hidden = document.getElementById("hidden-input");
+      document.getElementById("button").onclick = () => hidden.click();
+      hidden.onchange = (e) => {
+          FILE_LIST = e.target.files;
+          for (const file of e.target.files) {
+              addFile(file);
+          }
+      };
+
+      //const gallery = document.getElementById("gallery");
+      document.getElementById("gallery").onclick = ({target}) => {
+          if (target.classList.contains("delete")) {
+              const gallery = document.getElementById("gallery");
+              gallery.removeChild(gallery.lastElementChild);
+
+              const submitBtn = document.getElementById("submit");
+              submitBtn.classList.add("hidden");
+
+              const button = document.getElementById("button");
+              button.classList.remove("hidden");
+
+              FILE_LIST = null;
+          }
+      }
+
+      document.getElementById("submit").onclick = () => {
+
+          const fileUpload = document.getElementById("file-upload");
+          fileUpload.disk.files = FILE_LIST;
+          fileUpload.submit();
+          return false;
+      }
+
+    </script>
+{% endblock %}

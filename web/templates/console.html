@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block tabs %}
+  <li class="mr-1">
+    <a class="bg-white inline-block py-2 px-4 text-blue-500 hover:text-blue-800 font-semibold" href="/">Dashboard</a>
+  </li>
+  <li class="-mb-px mr-1">
+    <a class="bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 text-blue-700 font-semibold" href="#">Console</a>
+  </li>
+  <li class="mr-1">
+    <a class="bg-white inline-block py-2 px-4 text-blue-500 hover:text-blue-800 font-semibold" href="/view/{{ vm['id'] }}">Video</a>
+  </li>
+{% endblock %}
+
+{% block body %}
+
+<script src="/static/term.js"></script>
+<script>
+  ;(function() {
+      var socket = null;
+      window.onbeforeunload = function() {
+          socket.onclose = function () {}; // disable onclose handler first
+          socket.close();
+      };
+
+      window.onload = function() {
+          var socket = io();
+
+          var term = new Terminal({
+              cols: 80,
+              rows: 35,
+              useStyle: true,
+              screenKeys: true,
+              cursorBlink: true,
+          });
+
+          term.on('data', function(data) {
+              socket.emit('console_rx', {vmid:"{{ vm['id'] }}",
+                                         data: data});
+          });
+
+          socket.on('console-{{ vm['id'] }}', function(msg, cb) {
+              var message = msg.data;
+              term.write(message);
+          });
+
+          term.open(document.getElementById('term'));
+          socket.emit('view_console', {vmid:"{{ vm['id'] }}"});
+      }
+  }).call(this)
+</script>
+
+<body>
+  <h4>Serial console for {{ vm['name'] }}</h4>
+  <div id=term></div>
+  </div>
+</body>
+{% endblock %}

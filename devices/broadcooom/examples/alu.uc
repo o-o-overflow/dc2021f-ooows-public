@@ -1,0 +1,1 @@
+alu[reg_3, @reg_0, +, reg_1]

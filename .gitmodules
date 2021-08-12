@@ -1,0 +1,10 @@
+[submodule "devices/ogx/spdlog"]
+	path = devices/ogx/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "devices/ogx/json"]
+	path = devices/ogx/json
+	url = https://github.com/nlohmann/json.git
+[submodule "devices/ogx/libsodium"]
+	path = devices/ogx/libsodium
+	url = https://github.com/jedisct1/libsodium
+	branch = stable

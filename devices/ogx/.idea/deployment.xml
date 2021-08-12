@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="Resonator (0a95c787-171b-43c1-b7a6-de75b728da1a)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping local="$PROJECT_DIR$/../utils/virtio.cpp" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="Resonator (43f5d6fc-3109-4e94-af58-2e31073a80fb)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+            <mapping local="$PROJECT_DIR$/../utils/virtio.cpp" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="Tesseract (d575fef2-a960-45e1-9b73-a17802534bb4)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/wkr/dc2021f-ooows-vmm" local="$PROJECT_DIR$/../.." />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-tesseract" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

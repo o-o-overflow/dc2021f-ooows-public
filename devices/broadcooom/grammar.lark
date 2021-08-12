@@ -1,0 +1,155 @@
+?program: statements
+statements: (statement | label_statement)*
+
+label_statement: label statement
+
+statement: alu
+		 | immediate
+		 | memory
+		 | branch
+		 | load
+         | fifo
+         | nop
+         | ctx_arb
+         | csr
+
+label: CNAME ":"
+
+csr: csr_opcode csr_arg_list
+
+?csr_opcode: /csr/i
+
+csr_arg_list: "[" register "," csr_ref "]"
+
+csr_ref: /csr_\d/i
+
+fifo: fifo_opcode fifo_arg_list token?
+
+?fifo_opcode: /t_fifo_wr/i
+            | /r_fifo_rd/i
+            | /rx_pkt/i
+
+fifo_arg_list: "[" register "," register "," register "]"
+
+load: load_opcode load_arg_list
+
+?load_opcode: /ld_field/i
+            | /ld_field_w_clr/i
+
+load_arg_list: "[" register "," literal_num "," register ("," rot)? "]"
+
+branch: branch_opcode branch_arg_list
+
+?branch_opcode: /br/i
+             | /br=/i
+             | /br!=/i
+             | /br</i
+             | /br<=/i
+             | /br>/i
+             | /br>=/i
+             | /br=count/i
+             | /br!=count/i
+             | /br_bset/i
+             | /br_bclr/i
+             | /br=byte/i
+             | /br!=byte/i
+             | /br=ctx/i
+             | /br!=ctx/i
+             | /br_inp_state/i
+             | /br_!signal/i
+
+branch_arg_list: "[" branch_target "]"
+               | "[" register "," register "," target "]"
+
+?branch_target: target
+                | literal_num
+
+target: CNAME
+
+memory: memory_opcode memory_arg_list token?
+
+?memory_opcode: /scratch/i
+             | /ram/i
+
+memory_arg_list: "[" direction "," register "," register "," register "," literal_num "]"
+
+direction: /read/i
+         | /write/i
+
+token: /ctx_swap/i
+     | /sig_done/i
+
+nop: /nop/i
+
+ctx_arb: /ctx_arb/i
+
+?immediate: immediate_opcode immediate_arg_list
+
+?immediate_opcode: /IMMED/i
+                | /IMMED_B0/i
+                | /IMMED_B1/i
+                | /IMMED_B2/i
+                | /IMMED_B3/i
+                | /IMMED_W0/i
+                | /IMMED_W1/i
+
+immediate_arg_list: "[" register "," immediate_val ("," rot)? "]"
+
+?immediate_val: literal_num
+
+literal_num: NUMBER
+           | /0x/ HEXDIGIT+
+           | /0b/ NUMBER
+
+rot: /<<0/
+   | /<<8/
+   | /<<16/
+
+alu: alu_opcode alu_arg_list
+
+?alu_opcode: /alu/i
+          | /alu_shf/i
+          | /dbl_shf/i
+
+alu_arg_list: "[" register "," register "," alu_op_type "," register ("," shift INT)? "]"
+
+alu_op_type: /\+/
+           | /-/
+           | /B-A/i
+           | /B/i
+           | /~B/i
+           | /&/
+           | /\|/
+           | /\^/
+           | /\+carry/i
+           | /<</i
+           | />>/i
+           | /\+if-signed/i
+           | /\+4/
+           | /\+8/
+           | /\+16/
+
+shift: /<</
+     | />>/
+
+register: relative_register
+        | absolute_register
+        | dont_care_register
+
+relative_register: CNAME
+
+absolute_register: /@/ CNAME
+
+dont_care_register: /--/
+
+
+%import common.HEXDIGIT -> HEXDIGIT
+%import common.SIGNED_NUMBER -> NUMBER
+%import common.INT -> INT
+%import common.CNAME -> CNAME
+%import common.NEWLINE -> NEWLINE
+%import common.WS
+%import common.CPP_COMMENT -> CPP_COMMENT
+
+%ignore CPP_COMMENT
+%ignore WS

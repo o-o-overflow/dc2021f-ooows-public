@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+
+{% block tabs %}
+  <li class="mr-1">
+    <a class="bg-white inline-block py-2 px-4 text-blue-500 hover:text-blue-800 font-semibold" href="/">Dashboard</a>
+  </li>
+  <li class="mr-1">
+    <a class="bg-white inline-block py-2 px-4 text-blue-500 hover:text-blue-800 font-semibold" href="/console/{{ vm['id'] }}">Console</a>
+  </li>
+  <li class="-mb-px mr-1">
+    <a class="bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 text-blue-700 font-semibold" href="#">Video</a>
+  </li>
+{% endblock %}
+
+{% block body %}
+<script src="/static/term.js"></script>
+<script>
+  ;(function() {
+      var socket = null;
+      window.onbeforeunload = function() {
+          socket.onclose = function () {}; // disable onclose handler first
+          socket.close();
+      };
+      window.onload = function() {
+
+          var socket = io();
+
+          var term = new Terminal({
+              cols: 80,
+              rows: 20,
+              useStyle: true,
+              screenKeys: true,
+              cursorBlink: false,
+          });
+
+          socket.on('update-{{ vm['id'] }}', function(msg, cb) {
+              var term_div = '<div id=term"></div>';
+              var img_div = '<img id=image src="XXX" alt="image" height="200px" width="320px">';
+              var message = msg;
+              var container = document.getElementById("video_console");
+              var cur = container.children[0];
+              var mode = message['mode'];
+              var data = message['data'];
+              if (mode == 'text') {
+                  if (cur.id != "term") {
+                      container.innerHTML = term_div;
+                      var term = new Terminal({
+                          cols: 80,
+                          rows: 25,
+                          useStyle: true,
+                          screenKeys: false,
+                          cursorBlink: false,
+                      });
+                      term.open(document.getElementById('term'));
+                  }
+                  // clear screen first
+                  term.write("\033[2J");
+                  term.write(data);
+              }
+
+              if (mode == 'video') {
+                  // greetz BoosterJuice
+                  var bytes = new Uint8Array(data.length / 2);
+                  for (var i = 0; i < data.length; i += 2) {
+                      bytes[i / 2] = parseInt(data.substring(i, i + 2), 16);
+                  }
+                  var bmp_blob = new Blob([bytes],{type:"image/bmp"});
+                  var bmp_url = window.URL.createObjectURL(bmp_blob);
+                  var our_img = img_div.replace("XXX", bmp_url);
+                  // if the current image is a blob, release it
+                  if (cur.src.startsWith("blob")) {
+                      URL.revokeObjectURL(cur.src);
+                  }
+                  container.innerHTML = our_img;
+              }
+          });
+
+          socket.emit('view_video', {vmid:"{{ vm['id'] }}"});
+
+
+      }
+  }).call(this)
+</script>
+<body>
+  <h4>Video console for {{ vm['name'] }}</h4>
+  <div id=video_console>
+    <img id=image src=/static/black.bmp alt="image" height="200px" width="320px">
+  </div>
+</body>
+{% endblock %}

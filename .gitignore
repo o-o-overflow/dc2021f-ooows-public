@@ -1,0 +1,17 @@
+*.~
+*.o
+__pycache__
+*.pyc
+bios/bios
+boot/i686
+boot/img
+boot/out
+devices-bin/vga
+vmm
+web/ooows-web.db
+devices/broadcooom/microcode.c
+devices/broadcooom/engine.out
+devices-bin/net
+devices-bin/noflag
+devices-bin/net
+*.xml
