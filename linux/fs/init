@@ -1,0 +1,43 @@
+#!/bin/sh
+
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t 9p -o trans=virtio,version=9p2000.L,nosuid hostshare /home/ctf
+mkdir /dev/shm
+mount -t tempfs none /dev/shm
+
+#for f in $(ls *.ko); do
+#    insmod $f
+#done
+sysctl -w kernel.perf_event_paranoid=1
+
+cat <<EOF
+
+
+Boot took $(cut -d' ' -f1 /proc/uptime) seconds
+
+
+Welcome to pwn.college
+
+
+EOF
+chmod 600 /flag
+chown 0.0 /flag
+modprobe hyper-o
+mknod /dev/hyper-o c 79 79
+mknod /hyper-o c 79 79
+/user-test asef
+echo "DONE USER TEST"
+sleep 5
+/vmm ewq disk 1 /devices.config
+modprobe -r hyper-o
+echo "DONE VMM"
+sleep 100
+
+
+#modprobe kvm_intel dump_invalid_vmcs=1
+#mknod /dev/kvm c 10 $(grep '\<kvm\>' /proc/misc | cut -f 1 -d' ')
+#cd /home/*/code/defcon/dc2021f-ooows-vmm && ./vmm test boot/img/disk 1 devices.config 2>&1 | head -n10
+
+#/bin/sh
+#exec su -l ctf
