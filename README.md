@@ -1,6 +1,6 @@
 # ooows-* DEF CON 2021 Finals
 
-This repo contains the source for `ooows-flag-baby`, `ooows-p92021`, `ooows-ogx`, and `ooows-broadcooom`, which were used in DEF CON 2021 Finals.
+This repo contains the source for `ooows-flag-baby`, `ooows-p92021`, `ooows-ogx`, `ooows-broadcooom`, and `ooows-hyper-o` which were used in DEF CON 2021 Finals.
 
 The core of the ooows framework (such as [vmm.c](./vmm.c), [devicebus.c](./devicebus.c), [apic.c](./apic.c)) was conceptualized/written by [mike_pizza](https://twitter.com/michaeljpizza) and [jay](https://twitter.com/JakeCorina).
 
@@ -25,6 +25,10 @@ talk to this device.
 ## `ooows-broadcooom`
 
 [broadcooom](./devices/broadcooom), written by [adamd](https://twitter.com/adamdoupe), was intended as the fourth challenge, and it was a network device.
+
+## `ooows-hyper-o`
+
+[hyper-o](./hyper-o/), written by [Zardus](https://twitter.com/Zardus) and [jay](https://twitter.com/JakeCorina), was the final challenge where kvm was replaced by a custom hypervisor called `hyper-o`.
 
 ## Compilation
 
